@@ -3,6 +3,8 @@ import Dragula from 'dragula';
 import 'dragula/dist/dragula.css';
 import Swimlane from './Swimlane';
 import './Board.css';
+import ReactDOM from 'react-dom'
+
 
 export default class Board extends React.Component {
   constructor(props) {
@@ -50,9 +52,9 @@ export default class Board extends React.Component {
       status: companyDetails[3],
     }));
   }
-  renderSwimlane(name, clients, ref) {
+  renderSwimlane(name, clients, ref, id) {
     return (
-      <Swimlane name={name} clients={clients} dragulaRef={ref}/>
+      <Swimlane name={name} clients={clients} id={id} dragulaRef={ref}/>
     );
   }
 
@@ -62,17 +64,35 @@ export default class Board extends React.Component {
         <div className="container-fluid">
           <div className="row">
             <div className="col-md-4">
-              {this.renderSwimlane('Backlog', this.state.clients.backlog, this.swimlanes.backlog)}
+              {this.renderSwimlane('Backlog', this.state.clients.backlog, this.swimlanes.backlog, 'backlog')}
             </div>
             <div className="col-md-4">
-              {this.renderSwimlane('In Progress', this.state.clients.inProgress, this.swimlanes.inProgress)}
+              {this.renderSwimlane('In Progress', this.state.clients.inProgress, this.swimlanes.inProgress, 'progress')}
             </div>
             <div className="col-md-4">
-              {this.renderSwimlane('Complete', this.state.clients.complete, this.swimlanes.complete)}
+              {this.renderSwimlane('Complete', this.state.clients.complete, this.swimlanes.complete, 'complete')}
             </div>
           </div>
         </div>
       </div>
     );
+  }
+  componentDidMount() {
+    let container = ReactDOM.findDOMNode(this).getElementsByClassName('Swimlane-dragColumn') // Returns the elements
+    let content = []
+    for (let i = 0; i < container.length; i++) {
+      content.push(container[i])
+    }
+    this.drake = Dragula(content, {})
+    // everytime a drop event happes, we want to set the class of the element to be the same as its swimlane
+    this.drake.on('drop',(elem, target, source, sibling) => {
+      // elem.setAttribute("class")
+      // if (elem.data-status !== target.parentNode.id){
+
+      // }
+      elem.setAttribute("class", target.parentNode.id === 'backlog' ? "Card Card-grey" : target.parentNode.id === 'progress' ? 
+        "Card Card-blue" : "Card Card-green")
+
+    })
   }
 }
